@@ -8,13 +8,444 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --color-primary: #1a1a2e;
+      --color-accent: #c9a84c;
+      --color-accent-light: #e8c96a;
+      --color-text: #1a1a2e;
+      --color-text-light: #6b7280;
+      --color-bg: #ffffff;
+      --color-bg-alt: #f8f7f4;
+      --color-dark: #0f0f1a;
+      --color-dark-card: #1a1a2e;
+      --font-heading: 'Montserrat', sans-serif;
+      --font-body: 'Inter', sans-serif;
+      --transition: all 0.3s ease;
+      --shadow: 0 4px 24px rgba(0,0,0,0.08);
+      --shadow-hover: 0 8px 40px rgba(0,0,0,0.14);
+      --radius: 12px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-body);
+      color: var(--color-text);
+      background: var(--color-bg);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    img { max-width: 100%; display: block; }
+    a { text-decoration: none; color: inherit; }
+
+    /* ── HEADER ── */
+    .header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 5%;
+      height: 72px;
+      background: rgba(15, 15, 26, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(201,168,76,0.15);
+      transition: var(--transition);
+    }
+    .header.scrolled {
+      height: 64px;
+      background: rgba(15, 15, 26, 0.98);
+    }
+    .header-logo img { height: 40px; width: auto; }
+    .header-logo-text {
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 1.3rem;
+      color: #fff;
+      letter-spacing: 0.04em;
+    }
+    .header-logo-text span { color: var(--color-accent); }
+
+    .nav { display: flex; align-items: center; gap: 2rem; }
+    .nav a {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: rgba(255,255,255,0.8);
+      letter-spacing: 0.03em;
+      transition: color 0.2s;
+    }
+    .nav a:hover { color: var(--color-accent); }
+    .nav-cta {
+      background: var(--color-accent);
+      color: var(--color-dark) !important;
+      padding: 0.5rem 1.25rem;
+      border-radius: 6px;
+      font-weight: 600 !important;
+      transition: background 0.2s, transform 0.2s !important;
+    }
+    .nav-cta:hover { background: var(--color-accent-light) !important; transform: translateY(-1px); }
+
+    .mobile-toggle {
+      display: none; flex-direction: column; gap: 5px;
+      background: none; border: none; cursor: pointer; padding: 4px;
+    }
+    .mobile-toggle span {
+      display: block; width: 24px; height: 2px;
+      background: #fff; border-radius: 2px;
+      transition: var(--transition);
+    }
+    .mobile-toggle.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .mobile-toggle.active span:nth-child(2) { opacity: 0; }
+    .mobile-toggle.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .mobile-nav {
+      display: none; flex-direction: column;
+      position: fixed; top: 72px; left: 0; right: 0; z-index: 99;
+      background: rgba(15,15,26,0.98);
+      padding: 1.5rem 5%;
+      border-bottom: 1px solid rgba(201,168,76,0.2);
+      gap: 0;
+    }
+    .mobile-nav.open { display: flex; }
+    .mobile-nav a {
+      color: rgba(255,255,255,0.85);
+      font-size: 1rem; font-weight: 500;
+      padding: 0.9rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      transition: color 0.2s;
+    }
+    .mobile-nav a:last-child { border-bottom: none; }
+    .mobile-nav a:hover { color: var(--color-accent); }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative; min-height: 100vh;
+      display: flex; align-items: center;
+      overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background-size: cover; background-position: center;
+      transform: scale(1.05);
+      transition: transform 8s ease;
+    }
+    .hero.loaded .hero-bg { transform: scale(1); }
+    .hero-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(15,15,26,0.88) 0%, rgba(15,15,26,0.65) 60%, rgba(15,15,26,0.4) 100%);
+    }
+    .hero-content {
+      position: relative; z-index: 2;
+      padding: 0 5%; padding-top: 72px;
+      max-width: 760px;
+    }
+    .hero-eyebrow {
+      font-family: var(--font-heading);
+      font-size: 0.8rem; font-weight: 600;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--color-accent);
+      margin-bottom: 1.25rem;
+    }
+    .hero h1 {
+      font-family: var(--font-heading);
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 700; line-height: 1.1;
+      color: #fff;
+      margin-bottom: 1.5rem;
+    }
+    .hero-tagline {
+      font-size: 1.125rem; color: rgba(255,255,255,0.75);
+      max-width: 560px; margin-bottom: 2.5rem;
+      line-height: 1.7;
+    }
+    .hero-buttons { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .btn-primary {
+      display: inline-flex; align-items: center;
+      background: var(--color-accent); color: var(--color-dark);
+      font-family: var(--font-heading); font-weight: 700;
+      font-size: 0.9rem; letter-spacing: 0.04em;
+      padding: 0.875rem 2rem; border-radius: 6px;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .btn-primary:hover { background: var(--color-accent-light); transform: translateY(-2px); }
+    .btn-secondary {
+      display: inline-flex; align-items: center;
+      background: transparent; color: #fff;
+      font-family: var(--font-heading); font-weight: 600;
+      font-size: 0.9rem; letter-spacing: 0.04em;
+      padding: 0.875rem 2rem; border-radius: 6px;
+      border: 1.5px solid rgba(255,255,255,0.35);
+      transition: border-color 0.2s, color 0.2s, transform 0.2s;
+    }
+    .btn-secondary:hover { border-color: var(--color-accent); color: var(--color-accent); transform: translateY(-2px); }
+
+    /* ── SECTIONS ── */
+    .section { padding: 6rem 0; }
+    .section-alt { background: var(--color-bg-alt); }
+    .section-dark { background: var(--color-dark); color: #fff; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 5%; }
+
+    .section-eyebrow {
+      font-family: var(--font-heading);
+      font-size: 0.75rem; font-weight: 700;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--color-accent);
+      margin-bottom: 0.75rem;
+    }
+    .section-title {
+      font-family: var(--font-heading);
+      font-size: clamp(1.75rem, 3vw, 2.5rem);
+      font-weight: 700; line-height: 1.2;
+      margin-bottom: 1rem;
+    }
+    .section-subtitle {
+      font-size: 1.05rem; color: var(--color-text-light);
+      max-width: 600px; line-height: 1.7;
+    }
+    .section-header-center { text-align: center; margin-bottom: 3.5rem; }
+    .section-header-center .section-subtitle { margin: 0 auto; }
+
+    /* ── ABOUT ── */
+    .about-content {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 5rem; align-items: center;
+    }
+    .about-description {
+      color: var(--color-text-light); margin-bottom: 1rem;
+      font-size: 1rem; line-height: 1.75;
+    }
+    .about-values { display: flex; gap: 1.5rem; margin-top: 2rem; flex-wrap: wrap; }
+    .about-value {
+      display: flex; align-items: center; gap: 0.6rem;
+      font-family: var(--font-heading); font-size: 0.85rem;
+      font-weight: 600; color: var(--color-text);
+    }
+    .about-value-icon {
+      width: 36px; height: 36px;
+      background: rgba(201,168,76,0.12);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--color-accent); flex-shrink: 0;
+    }
+    .about-image-container { position: relative; }
+    .about-image {
+      width: 100%; border-radius: var(--radius);
+      box-shadow: var(--shadow-hover);
+      aspect-ratio: 4/3; object-fit: cover;
+    }
+    .about-image-accent {
+      position: absolute; bottom: -16px; right: -16px;
+      width: 50%; height: 50%; border-radius: var(--radius);
+      border: 3px solid var(--color-accent); z-index: -1;
+    }
+
+    /* ── PRODUCTS ── */
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+    .product-card {
+      background: #fff; border-radius: var(--radius);
+      overflow: hidden; box-shadow: var(--shadow);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .product-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-hover); }
+    .product-image { aspect-ratio: 3/2; overflow: hidden; }
+    .product-image img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+    .product-card:hover .product-image img { transform: scale(1.06); }
+    .product-info { padding: 1.5rem; }
+    .product-info h3 {
+      font-family: var(--font-heading); font-size: 1.05rem;
+      font-weight: 700; margin-bottom: 0.5rem;
+      color: var(--color-primary);
+    }
+    .product-info p { font-size: 0.9rem; color: var(--color-text-light); line-height: 1.6; }
+
+    /* ── FEATURES ── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+    .feature-card {
+      padding: 2rem; border-radius: var(--radius);
+      background: #fff; border: 1px solid rgba(0,0,0,0.06);
+      box-shadow: var(--shadow);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .feature-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); }
+    .feature-icon {
+      width: 56px; height: 56px;
+      background: rgba(201,168,76,0.1);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--color-accent);
+      margin-bottom: 1.25rem;
+    }
+    .feature-card h3 {
+      font-family: var(--font-heading); font-size: 1rem;
+      font-weight: 700; margin-bottom: 0.6rem;
+      color: var(--color-primary);
+    }
+    .feature-card p { font-size: 0.9rem; color: var(--color-text-light); line-height: 1.65; }
+
+    /* ── INDUSTRIES ── */
+    .industries-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1.25rem;
+    }
+    .industry-card {
+      padding: 1.75rem 1.25rem; border-radius: var(--radius);
+      background: #fff; text-align: center;
+      border: 1px solid rgba(0,0,0,0.06); box-shadow: var(--shadow);
+      transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+    }
+    .industry-card:hover {
+      transform: translateY(-4px); box-shadow: var(--shadow-hover);
+      border-color: var(--color-accent);
+    }
+    .industry-icon {
+      width: 60px; height: 60px; margin: 0 auto 1rem;
+      background: rgba(201,168,76,0.1); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--color-accent);
+    }
+    .industry-card h3 {
+      font-family: var(--font-heading); font-size: 0.95rem;
+      font-weight: 700; margin-bottom: 0.5rem; color: var(--color-primary);
+    }
+    .industry-card p { font-size: 0.82rem; color: var(--color-text-light); line-height: 1.55; }
+
+    /* ── CONTACT ── */
+    .contact-grid {
+      display: grid; grid-template-columns: 1fr 1.4fr;
+      gap: 5rem; align-items: start;
+    }
+    .section-dark .section-eyebrow { color: var(--color-accent); }
+    .section-dark h2 {
+      font-family: var(--font-heading);
+      font-size: clamp(1.75rem, 3vw, 2.25rem);
+      font-weight: 700; color: #fff; margin-bottom: 1rem;
+    }
+    .contact-description { color: rgba(255,255,255,0.65); margin-bottom: 2rem; line-height: 1.7; }
+    .contact-details { display: flex; flex-direction: column; gap: 1.25rem; }
+    .contact-detail { display: flex; align-items: flex-start; gap: 1rem; }
+    .contact-detail-icon {
+      width: 40px; height: 40px; flex-shrink: 0;
+      background: rgba(201,168,76,0.15); border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--color-accent);
+    }
+    .contact-detail-label { font-size: 0.75rem; color: rgba(255,255,255,0.45); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.2rem; }
+    .contact-detail-value { color: #fff; font-size: 0.95rem; }
+    a.contact-detail-value:hover { color: var(--color-accent); }
+
+    .contact-form { display: flex; flex-direction: column; gap: 1.1rem; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+    .form-group label {
+      font-size: 0.8rem; font-weight: 600;
+      letter-spacing: 0.05em; text-transform: uppercase;
+      color: rgba(255,255,255,0.55);
+    }
+    .form-group input,
+    .form-group textarea {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 8px; padding: 0.8rem 1rem;
+      color: #fff; font-family: var(--font-body); font-size: 0.95rem;
+      transition: border-color 0.2s, background 0.2s;
+      outline: none;
+    }
+    .form-group input::placeholder,
+    .form-group textarea::placeholder { color: rgba(255,255,255,0.3); }
+    .form-group input:focus,
+    .form-group textarea:focus {
+      border-color: var(--color-accent);
+      background: rgba(255,255,255,0.09);
+    }
+    .form-group textarea { min-height: 130px; resize: vertical; }
+    .form-submit {
+      background: var(--color-accent); color: var(--color-dark);
+      font-family: var(--font-heading); font-weight: 700;
+      font-size: 0.95rem; letter-spacing: 0.04em;
+      padding: 0.95rem 2rem; border: none; border-radius: 8px;
+      cursor: pointer; transition: background 0.2s, transform 0.2s;
+      align-self: flex-start;
+    }
+    .form-submit:hover { background: var(--color-accent-light); transform: translateY(-2px); }
+    .form-submit.sending { opacity: 0.7; cursor: not-allowed; }
+    .form-success {
+      display: none; padding: 1rem 1.25rem;
+      background: rgba(201,168,76,0.15); border: 1px solid var(--color-accent);
+      border-radius: 8px; color: var(--color-accent);
+      font-size: 0.95rem; font-weight: 500;
+    }
+    .form-success.show { display: block; }
+
+    /* ── FOOTER ── */
+    .footer {
+      background: #080810;
+      padding: 3rem 0 2rem;
+      border-top: 1px solid rgba(201,168,76,0.15);
+    }
+    .footer-inner {
+      max-width: 1200px; margin: 0 auto; padding: 0 5%;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 1.5rem;
+    }
+    .footer-brand { display: flex; flex-direction: column; gap: 0.4rem; }
+    .footer-logo-text {
+      font-family: var(--font-heading); font-weight: 700;
+      font-size: 1.1rem; color: #fff; letter-spacing: 0.04em;
+    }
+    .footer-logo-text span { color: var(--color-accent); }
+    .footer-tagline { font-size: 0.8rem; color: rgba(255,255,255,0.35); letter-spacing: 0.05em; }
+    .footer-links { display: flex; gap: 1.75rem; flex-wrap: wrap; }
+    .footer-links a { font-size: 0.85rem; color: rgba(255,255,255,0.5); transition: color 0.2s; }
+    .footer-links a:hover { color: var(--color-accent); }
+    .footer-copy { font-size: 0.8rem; color: rgba(255,255,255,0.25); width: 100%; text-align: center; margin-top: 1rem; }
+
+    /* ── ANIMATIONS ── */
+    .fade-in { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+    .fade-in.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1024px) {
+      .industries-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 900px) {
+      .about-content { grid-template-columns: 1fr; gap: 3rem; }
+      .products-grid { grid-template-columns: repeat(2, 1fr); }
+      .features-grid { grid-template-columns: repeat(2, 1fr); }
+      .contact-grid { grid-template-columns: 1fr; gap: 3rem; }
+    }
+    @media (max-width: 768px) {
+      .nav { display: none; }
+      .mobile-toggle { display: flex; }
+      .industries-grid { grid-template-columns: repeat(2, 1fr); }
+      .form-row { grid-template-columns: 1fr; }
+      .footer-inner { flex-direction: column; align-items: flex-start; }
+    }
+    @media (max-width: 540px) {
+      .products-grid { grid-template-columns: 1fr; }
+      .features-grid { grid-template-columns: 1fr; }
+      .industries-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
 </head>
 <body>
 
   <!-- Header -->
   <header class="header" id="header">
     <a href="/" class="header-logo">
-      <img id="logo-img" src="" alt="Krix Ventures">
+      <span class="header-logo-text">KRIX<span> VENTURES</span></span>
     </a>
     <nav class="nav">
       <a href="#about">About</a>
@@ -24,9 +455,7 @@
       <a href="#contact" class="nav-cta">Get in Touch</a>
     </nav>
     <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle navigation">
-      <span></span>
-      <span></span>
-      <span></span>
+      <span></span><span></span><span></span>
     </button>
   </header>
 
@@ -40,7 +469,7 @@
   </nav>
 
   <!-- Hero Section -->
-  <section class="hero">
+  <section class="hero" id="hero">
     <div class="hero-bg" style="background-image: url('https://images.pexels.com/photos/2310904/pexels-photo-2310904.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&fit=crop')"></div>
     <div class="hero-overlay"></div>
     <div class="hero-content fade-in">
@@ -66,19 +495,19 @@
           <div class="about-values">
             <div class="about-value">
               <div class="about-value-icon">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
               </div>
               <span>Quality First</span>
             </div>
             <div class="about-value">
               <div class="about-value-icon">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
               </div>
               <span>Global Reach</span>
             </div>
             <div class="about-value">
               <div class="about-value-icon">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
               </div>
               <span>Strong Partnerships</span>
             </div>
@@ -102,64 +531,34 @@
       </div>
       <div class="products-grid">
         <div class="product-card fade-in">
-          <div class="product-image">
-            <img src="https://images.pexels.com/photos/3680094/pexels-photo-3680094.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop" alt="Hot Rolled Stainless Steel Coils">
-          </div>
-          <div class="product-info">
-            <h3>HR Coils</h3>
-            <p>Hot rolled stainless steel coils in various grades including 304, 316, and 430, suitable for heavy-duty industrial applications.</p>
-          </div>
+          <div class="product-image"><img src="https://images.pexels.com/photos/3680094/pexels-photo-3680094.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop" alt="Hot Rolled Stainless Steel Coils" loading="lazy"></div>
+          <div class="product-info"><h3>HR Coils</h3><p>Hot rolled stainless steel coils in various grades including 304, 316, and 430, suitable for heavy-duty industrial applications.</p></div>
         </div>
         <div class="product-card fade-in">
-          <div class="product-image">
-            <img src="https://images.pexels.com/photos/2310904/pexels-photo-2310904.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop" alt="Cold Rolled Stainless Steel Coils">
-          </div>
-          <div class="product-info">
-            <h3>CR Coils</h3>
-            <p>Cold rolled coils with superior surface finish and tighter tolerances, ideal for precision manufacturing and consumer goods.</p>
-          </div>
+          <div class="product-image"><img src="https://images.pexels.com/photos/2310904/pexels-photo-2310904.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop" alt="Cold Rolled Stainless Steel Coils" loading="lazy"></div>
+          <div class="product-info"><h3>CR Coils</h3><p>Cold rolled coils with superior surface finish and tighter tolerances, ideal for precision manufacturing and consumer goods.</p></div>
         </div>
         <div class="product-card fade-in">
-          <div class="product-image">
-            <img src="https://images.pexels.com/photos/2760243/pexels-photo-2760243.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop" alt="Stainless Steel Sheets">
-          </div>
-          <div class="product-info">
-            <h3>Sheets & Plates</h3>
-            <p>Flat stainless steel sheets and plates in multiple thicknesses and finishes for construction, architecture, and fabrication.</p>
-          </div>
+          <div class="product-image"><img src="https://images.pexels.com/photos/2760243/pexels-photo-2760243.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop" alt="Stainless Steel Sheets" loading="lazy"></div>
+          <div class="product-info"><h3>Sheets &amp; Plates</h3><p>Flat stainless steel sheets and plates in multiple thicknesses and finishes for construction, architecture, and fabrication.</p></div>
         </div>
         <div class="product-card fade-in">
-          <div class="product-image">
-            <img src="https://images.pexels.com/photos/1078884/pexels-photo-1078884.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop" alt="Stainless Steel Pipes and Tubes">
-          </div>
-          <div class="product-info">
-            <h3>Pipes & Tubes</h3>
-            <p>Seamless and welded stainless steel pipes and tubes for fluid transport, structural support, and industrial piping systems.</p>
-          </div>
+          <div class="product-image"><img src="https://images.pexels.com/photos/1078884/pexels-photo-1078884.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop" alt="Stainless Steel Pipes and Tubes" loading="lazy"></div>
+          <div class="product-info"><h3>Pipes &amp; Tubes</h3><p>Seamless and welded stainless steel pipes and tubes for fluid transport, structural support, and industrial piping systems.</p></div>
         </div>
         <div class="product-card fade-in">
-          <div class="product-image">
-            <img src="https://images.pexels.com/photos/3846254/pexels-photo-3846254.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop" alt="Stainless Steel Coil Slitting">
-          </div>
-          <div class="product-info">
-            <h3>Coil Slitting</h3>
-            <p>Custom slit coils to precise widths, enabling efficient material usage and reducing waste for downstream manufacturers.</p>
-          </div>
+          <div class="product-image"><img src="https://images.pexels.com/photos/3846254/pexels-photo-3846254.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop" alt="Stainless Steel Coil Slitting" loading="lazy"></div>
+          <div class="product-info"><h3>Coil Slitting</h3><p>Custom slit coils to precise widths, enabling efficient material usage and reducing waste for downstream manufacturers.</p></div>
         </div>
         <div class="product-card fade-in">
-          <div class="product-image">
-            <img src="https://images.pexels.com/photos/2539462/pexels-photo-2539462.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop" alt="Stainless Steel Bars and Rods">
-          </div>
-          <div class="product-info">
-            <h3>Bars & Rods</h3>
-            <p>Round, flat, and hexagonal stainless steel bars for machining, fasteners, and structural applications across industries.</p>
-          </div>
+          <div class="product-image"><img src="https://images.pexels.com/photos/2539462/pexels-photo-2539462.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop" alt="Stainless Steel Bars and Rods" loading="lazy"></div>
+          <div class="product-info"><h3>Bars &amp; Rods</h3><p>Round, flat, and hexagonal stainless steel bars for machining, fasteners, and structural applications across industries.</p></div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Why Choose Us Section -->
+  <!-- Why Choose Us -->
   <section class="section" id="why-us">
     <div class="container">
       <div class="section-header section-header-center fade-in">
@@ -169,44 +568,32 @@
       </div>
       <div class="features-grid">
         <div class="feature-card fade-in">
-          <div class="feature-icon">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
-          </div>
+          <div class="feature-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg></div>
           <h3>Quality Assurance</h3>
           <p>Every shipment undergoes rigorous inspection and testing. We source only from certified mills with proven track records.</p>
         </div>
         <div class="feature-card fade-in">
-          <div class="feature-icon">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-          </div>
+          <div class="feature-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
           <h3>Global Sourcing</h3>
           <p>Access to a network of reliable mills and suppliers across Asia, Europe, and beyond ensures the best pricing and availability.</p>
         </div>
         <div class="feature-card fade-in">
-          <div class="feature-icon">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-          </div>
+          <div class="feature-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div>
           <h3>Reliable Delivery</h3>
           <p>Efficient logistics management ensures your materials arrive on time, every time, with full documentation and tracking.</p>
         </div>
         <div class="feature-card fade-in">
-          <div class="feature-icon">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-          </div>
+          <div class="feature-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
           <h3>Competitive Pricing</h3>
           <p>Strong mill relationships and efficient operations allow us to offer market-competitive pricing without compromising on quality.</p>
         </div>
         <div class="feature-card fade-in">
-          <div class="feature-icon">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
-          </div>
+          <div class="feature-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></div>
           <h3>Flexible Order Sizes</h3>
           <p>Whether you need a single coil or a full container load, we accommodate orders of all sizes to match your requirements.</p>
         </div>
         <div class="feature-card fade-in">
-          <div class="feature-icon">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-          </div>
+          <div class="feature-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
           <h3>Full Documentation</h3>
           <p>Complete mill test certificates, inspection reports, and shipping documentation provided with every order for full traceability.</p>
         </div>
@@ -214,7 +601,7 @@
     </div>
   </section>
 
-  <!-- Industries Section -->
+  <!-- Industries -->
   <section class="section section-alt" id="industries">
     <div class="container">
       <div class="section-header section-header-center fade-in">
@@ -224,45 +611,35 @@
       </div>
       <div class="industries-grid">
         <div class="industry-card fade-in">
-          <div class="industry-icon">
-            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="15" width="4" height="5"/><rect x="10" y="11" width="4" height="9"/><rect x="16" y="7" width="4" height="13"/><path d="M4 5l4 2 4-3 4 2 4-2"/></svg>
-          </div>
+          <div class="industry-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="15" width="4" height="5"/><rect x="10" y="11" width="4" height="9"/><rect x="16" y="7" width="4" height="13"/><path d="M4 5l4 2 4-3 4 2 4-2"/></svg></div>
           <h3>Automotive</h3>
           <p>Exhaust systems, structural components, trim, and precision parts for automotive manufacturing.</p>
         </div>
         <div class="industry-card fade-in">
-          <div class="industry-icon">
-            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-          </div>
+          <div class="industry-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
           <h3>Construction</h3>
           <p>Cladding, structural supports, railings, roofing, and architectural facades for modern buildings.</p>
         </div>
         <div class="industry-card fade-in">
-          <div class="industry-icon">
-            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
-          </div>
+          <div class="industry-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg></div>
           <h3>Food Processing</h3>
           <p>Hygienic-grade steel for food preparation equipment, storage tanks, and processing lines.</p>
         </div>
         <div class="industry-card fade-in">
-          <div class="industry-icon">
-            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/><path d="M12 8v8M8 12h8"/></svg>
-          </div>
+          <div class="industry-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/><path d="M12 8v8M8 12h8"/></svg></div>
           <h3>Pharmaceuticals</h3>
           <p>Corrosion-resistant steel for pharmaceutical equipment, clean rooms, and sterile environments.</p>
         </div>
         <div class="industry-card fade-in">
-          <div class="industry-icon">
-            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-          </div>
-          <h3>Oil & Gas</h3>
+          <div class="industry-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
+          <h3>Oil &amp; Gas</h3>
           <p>High-grade stainless steel for pipelines, offshore platforms, and petrochemical processing facilities.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Contact Section -->
+  <!-- Contact -->
   <section class="section section-dark" id="contact">
     <div class="container">
       <div class="contact-grid">
@@ -272,18 +649,14 @@
           <p class="contact-description">Whether you're looking for a reliable stainless steel supplier or exploring partnership opportunities, we'd love to hear from you.</p>
           <div class="contact-details">
             <div class="contact-detail">
-              <div class="contact-detail-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-              </div>
+              <div class="contact-detail-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
               <div>
                 <p class="contact-detail-label">Email</p>
                 <a href="mailto:info@krixventures.com" class="contact-detail-value">info@krixventures.com</a>
               </div>
             </div>
             <div class="contact-detail">
-              <div class="contact-detail-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-              </div>
+              <div class="contact-detail-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
               <div>
                 <p class="contact-detail-label">Office</p>
                 <p class="contact-detail-value">Singapore</p>
@@ -310,7 +683,8 @@
             <label for="message">Message</label>
             <textarea id="message" name="message" placeholder="Tell us about your requirements..." required></textarea>
           </div>
-          <button type="submit" class="form-submit">Send Message</button>
+          <div class="form-success" id="formSuccess">Thank you! Your message has been sent. We'll be in touch shortly.</div>
+          <button type="submit" class="form-submit" id="formSubmit">Send Message</button>
         </form>
       </div>
     </div>
@@ -320,7 +694,7 @@
   <footer class="footer">
     <div class="footer-inner">
       <div class="footer-brand">
-        <img id="footer-logo-img" src="" alt="Krix Ventures" class="footer-logo">
+        <span class="footer-logo-text">KRIX<span> VENTURES</span></span>
         <p class="footer-tagline">Premium Stainless Steel Trading</p>
       </div>
       <nav class="footer-links">
@@ -334,6 +708,66 @@
     </div>
   </footer>
 
-  <script type="module" src="/src/main.js"></script>
+  <script>
+    // Header scroll effect
+    const header = document.getElementById('header');
+    window.addEventListener('scroll', () => {
+      header.classList.toggle('scrolled', window.scrollY > 50);
+    });
+
+    // Hero parallax + load animation
+    const hero = document.getElementById('hero');
+    hero.classList.add('loaded');
+
+    // Mobile nav toggle
+    const toggle = document.getElementById('mobileToggle');
+    const mobileNav = document.getElementById('mobileNav');
+    toggle.addEventListener('click', () => {
+      toggle.classList.toggle('active');
+      mobileNav.classList.toggle('open');
+    });
+    mobileNav.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        toggle.classList.remove('active');
+        mobileNav.classList.remove('open');
+      });
+    });
+
+    // Scroll fade-in
+    const fadeEls = document.querySelectorAll('.fade-in');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => entry.target.classList.add('visible'), i * 80);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    fadeEls.forEach(el => observer.observe(el));
+
+    // Contact form — mailto fallback (no backend needed)
+    document.getElementById('contactForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const btn = document.getElementById('formSubmit');
+      const success = document.getElementById('formSuccess');
+      const name = document.getElementById('fullName').value;
+      const email = document.getElementById('email').value;
+      const phone = document.getElementById('phone').value;
+      const message = document.getElementById('message').value;
+      const subject = encodeURIComponent('Enquiry from ' + name);
+      const body = encodeURIComponent(
+        'Name: ' + name + '\nEmail: ' + email + '\nPhone: ' + phone + '\n\nMessage:\n' + message
+      );
+      window.location.href = 'mailto:info@krixventures.com?subject=' + subject + '&body=' + body;
+      btn.classList.add('sending');
+      btn.textContent = 'Opening email...';
+      setTimeout(() => {
+        success.classList.add('show');
+        btn.classList.remove('sending');
+        btn.textContent = 'Send Message';
+        this.reset();
+      }, 1500);
+    });
+  </script>
 </body>
 </html>
